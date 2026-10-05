@@ -1,15 +1,18 @@
-from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from app.models.event import Event
-from app.schemas.event import EventCreate, EventUpdate 
+from app.schemas.event import EventCreate, EventUpdate
+from app.schemas.user import UserRole
 from app.repositories.event_repository import (
     create_event,
     get_all_events,
     get_event_by_id,
     update_event,
-    delete_event
+    delete_event,
 )
+from app.repositories.user_repository import get_user_by_id
 
 
 def create_new_event(
@@ -17,6 +20,23 @@ def create_new_event(
     event_data: EventCreate,
     organizer_id: int
 ):
+    organizer = get_user_by_id(db, organizer_id)
+    if organizer is None or organizer.role.strip().upper() != UserRole.ORGANIZER.value:
+        raise HTTPException(
+            status_code=400,
+            detail="Events must be assigned to an organizer"
+        )
+
+    event_date = event_data.date
+    if event_date.tzinfo is None:
+        event_date = event_date.replace(tzinfo=timezone.utc)
+
+    if event_date <= datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=400,
+            detail="Event date must be in the future"
+        )
+
     new_event = Event(
         title=event_data.title,
         description=event_data.description,
@@ -25,6 +45,7 @@ def create_new_event(
         max_volunteers=event_data.max_volunteers,
         organizer_id=organizer_id
     )
+
 
     return create_event(db, new_event)
 
@@ -47,7 +68,8 @@ def update_existing_event(
     db: Session,
     event_id: int,
     event_data: EventUpdate,
-    organizer_id: int
+    organizer_id: int,
+    is_admin: bool = False
 ):
     event = get_event_by_id(db, event_id)
 
@@ -57,7 +79,7 @@ def update_existing_event(
             detail="Event not found"
         )
 
-    if event.organizer_id != organizer_id:
+    if not is_admin and event.organizer_id != organizer_id:
         raise HTTPException(
             status_code=403,
             detail="You can only modify your own events"
@@ -83,7 +105,8 @@ def update_existing_event(
 def delete_existing_event(
     db: Session,
     event_id: int,
-    organizer_id: int
+    organizer_id: int,
+    is_admin: bool = False
 ):
     event = get_event_by_id(db, event_id)
 
@@ -92,14 +115,45 @@ def delete_existing_event(
             status_code=404,
             detail="Event not found"
         )
-    if event.organizer_id != organizer_id:
+    if not is_admin and event.organizer_id != organizer_id:
         raise HTTPException(
-        status_code=403,
-        detail="You can only modify your own events"
-    )
+            status_code=403,
+            detail="You can only modify your own events"
+        )
 
     delete_event(db, event)
 
     return {
         "message": "Event deleted successfully"
     }
+
+def change_event_status(
+    db: Session,
+    event_id: int,
+    status: str,
+    organizer_id: int,
+    is_admin: bool = False,
+):
+    event = get_event_by_id(
+        db=db,
+        event_id=event_id
+    )
+
+    if event is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Event not found"
+        )
+
+    if not is_admin and event.organizer_id != organizer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="You can only manage your own events"
+        )
+
+    event.status = status
+
+    db.commit()
+    db.refresh(event)
+
+    return event

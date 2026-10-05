@@ -13,6 +13,12 @@ class Event(Base):
     date = Column(DateTime, nullable=False)
     max_volunteers = Column(Integer, nullable=False)
 
+    status = Column(
+    String,
+    nullable=False,
+    default="UPCOMING"
+)
+
     organizer_id = Column(
         Integer,
         ForeignKey("users.id"),

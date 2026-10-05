@@ -1,11 +1,25 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.sql import func
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    UniqueConstraint,
+    func,
+)
 
 from database import Base
 
 
 class Application(Base):
     __tablename__ = "applications"
+    __table_args__ = (
+        UniqueConstraint(
+            "event_id",
+            "volunteer_id",
+            name="uq_event_volunteer"
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 

@@ -7,9 +7,12 @@ from app.repositories.user_repository import (
     get_user_by_email,
     create_user
 )
-from app.core.security import hash_password
-from app.schemas.user import UserCreate, LoginRequest
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token
+)
+
 
 def register_user(
     db: Session,
@@ -30,18 +33,20 @@ def register_user(
         name=user_data.name,
         email=user_data.email,
         password=hash_password(user_data.password),
-        role=user_data.role
+        role=user_data.role.value
     )
 
     return create_user(db, new_user)
 
+
 def login_user(
     db: Session,
-    login_data: LoginRequest
+    email: str,
+    password: str
 ):
     user = get_user_by_email(
         db,
-        login_data.email
+        email
     )
 
     if user is None:
@@ -51,7 +56,7 @@ def login_user(
         )
 
     if not verify_password(
-        login_data.password,
+        password,
         user.password
     ):
         raise HTTPException(
@@ -68,4 +73,3 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer"
     }
-

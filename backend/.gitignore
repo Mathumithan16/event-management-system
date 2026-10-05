@@ -1,0 +1,45 @@
+# =========================
+# Python / FastAPI
+# =========================
+
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+backend/.env
+
+# =========================
+# React Native
+# =========================
+
+mobile/node_modules/
+mobile/.expo/
+mobile/.metro/
+mobile/.cache/
+
+# React Native Android
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/.cxx/
+
+# React Native iOS
+mobile/ios/Pods/
+mobile/ios/build/
+
+# =========================
+# IDE
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+# OS
+# =========================
+
+.DS_Store
+Thumbs.db

@@ -1,14 +1,14 @@
+from importlib import import_module
+
 from fastapi import FastAPI
 
 from database import Base, engine
 
-from app.models.user import User
-from app.models.event import Event
-from app.models.application import Application
+import_module("app.models.user")
+import_module("app.models.event")
+import_module("app.models.application")
 
-from app.routers import events
-from app.routers import auth
-
+from app.routers import admin, applications, auth, events
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,7 +22,8 @@ app = FastAPI(
 
 app.include_router(events.router)
 app.include_router(auth.router)
-
+app.include_router(applications.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def root():
