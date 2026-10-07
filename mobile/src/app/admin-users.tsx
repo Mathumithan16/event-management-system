@@ -10,8 +10,7 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
-
-const API_URL = "http://172.20.97.59:8000";
+import { API_URL } from "../config/api";
 
 type User = {
   id: number;

@@ -31,7 +31,7 @@ def register_user(
         email=user_data.email,
         password=hash_password(user_data.password),
         role=user_data.role.value,
-        is_approved=False,
+        is_approved=user_data.role.value != "ORGANIZER",
     )
 
     return create_user(db, new_user)
@@ -73,4 +73,3 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer",
     }
-

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../config/api";
 import {
   ActivityIndicator,
   Alert,
@@ -50,7 +51,7 @@ export default function AdminApplicationsScreen() {
       }
 
       const response = await fetch(
-        "http://172.20.97.59:8000/admin/applications",
+        `${API_URL}/admin/applications`,
         {
           method: "GET",
           headers: {
@@ -111,7 +112,7 @@ export default function AdminApplicationsScreen() {
               }
 
               const response = await fetch(
-                `http://172.20.97.59:8000/admin/applications/${applicationId}`,
+                `${API_URL}/admin/applications/${applicationId}`,
                 {
                   method: "DELETE",
                   headers: {

@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
+import { API_URL } from "../config/api";
 
 type Event = {
   id: number;
@@ -51,7 +52,7 @@ export default function MyEventsScreen() {
       }
 
       const response = await fetch(
-        "http://172.20.97.59:8000/events/my",
+        `${API_URL}/events/my`,
         {
           method: "GET",
           headers: {

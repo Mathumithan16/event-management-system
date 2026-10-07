@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL } from "../config/api";
 import { router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,7 +29,7 @@ export default function LoginScreen() {
 
     try {
       const response = await fetch(
-        "http://172.20.97.59:8000/auth/login",
+        `${API_URL}/auth/login`,
         {
           method: "POST",
           headers: {

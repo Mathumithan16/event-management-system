@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { API_URL } from "../config/api";
 
 type Event = {
   id: number;
@@ -33,7 +34,7 @@ const [showStatusMenu, setShowStatusMenu] = useState(false);
   const fetchEvent = async () => {
     try {
       const response = await fetch(
-        `http://172.19.51.45:8000/events/${id}`
+        `${API_URL}/events/${id}`
       );
 
       const data = await response.json();
@@ -102,7 +103,7 @@ if (storedUserId) {
               }
 
               const response = await fetch(
-                `http://172.19.51.45:8000/events/${event.id}`,
+                `${API_URL}/events/${event.id}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -165,7 +166,7 @@ if (storedUserId) {
       }
 
       const response = await fetch(
-        "http://172.20.97.59:8000/applications/",
+        `${API_URL}/applications/`,
         {
           method: "POST",
           headers: {
@@ -218,7 +219,7 @@ if (storedUserId) {
       }
 
       const response = await fetch(
-        `http://172.20.97.59:8000/events/${event.id}/status`,
+        `${API_URL}/events/${event.id}/status`,
         {
           method: "PATCH",
           headers: {

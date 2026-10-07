@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../config/api";
 
 type Event = {
   id: number;
@@ -32,7 +33,7 @@ export default function EventsScreen() {
       const token = await AsyncStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://172.20.97.59:8000/events/",
+        `${API_URL}/events/`,
         {
           method: "GET",
           headers: {

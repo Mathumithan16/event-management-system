@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { API_URL } from "../config/api";
 
 type Application = {
   id: number;
@@ -35,7 +36,7 @@ export default function ApplicationsScreen() {
       }
 
       const response = await fetch(
-        "http://172.19.51.45:8000/applications/my",
+        `${API_URL}/applications/my`,
         {
           method: "GET",
           headers: {
@@ -112,7 +113,7 @@ export default function ApplicationsScreen() {
               }
 
               const response = await fetch(
-                `http://172.20.97.59:8000/applications/${applicationId}`,
+                `${API_URL}/applications/${applicationId}`,
                 {
                   method: "DELETE",
                   headers: {

@@ -74,7 +74,6 @@ def require_organizer(
 def require_volunteer(
     current_user = Depends(get_current_user)
 ):
-    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() != UserRole.VOLUNTEER.value:
         raise HTTPException(
             status_code=403,
@@ -87,7 +86,6 @@ def require_volunteer(
 def require_admin(
     current_user = Depends(get_current_user)
 ):
-    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=403,
@@ -100,11 +98,10 @@ def require_admin(
 def require_organizer_or_admin(
     current_user = Depends(get_current_user)
 ):
-    _ensure_user_is_approved(current_user)
-    if current_user.role.strip().upper() not in {
-        UserRole.ORGANIZER.value,
-        UserRole.ADMIN.value,
-    }:
+    role = current_user.role.strip().upper()
+    if role == UserRole.ORGANIZER.value:
+        _ensure_user_is_approved(current_user)
+    elif role != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=403,
             detail="Only organizers or admins can perform this action"

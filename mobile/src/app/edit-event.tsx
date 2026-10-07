@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { API_URL } from "../config/api";
 
 type Event = {
   id: number;
@@ -42,7 +43,7 @@ export default function EditEventScreen() {
   const fetchEvent = async () => {
     try {
       const response = await fetch(
-        `http://172.19.51.45:8000/events/${id}`
+        `${API_URL}/events/${id}`
       );
 
       const data = await response.json();
@@ -149,7 +150,7 @@ export default function EditEventScreen() {
       }
 
       const response = await fetch(
-        `http://172.20.97.59:8000/events/${id}`,
+        `${API_URL}/events/${id}`,
         {
           method: "PUT",
           headers: {

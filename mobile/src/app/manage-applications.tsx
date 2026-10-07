@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { API_URL } from "../config/api";
 
 type Application = {
   id: number;
@@ -34,7 +35,7 @@ export default function ManageApplicationsScreen() {
       }
 
       const response = await fetch(
-        `http://172.19.51.45:8000/applications/event/${id}`,
+        `${API_URL}/applications/event/${id}`,
         {
           method: "GET",
           headers: {
@@ -83,7 +84,7 @@ export default function ManageApplicationsScreen() {
       }
 
       const response = await fetch(
-        `http://172.20.97.59:8000/applications/${applicationId}/status`,
+        `${API_URL}/applications/${applicationId}/status`,
         {
           method: "PUT",
           headers: {

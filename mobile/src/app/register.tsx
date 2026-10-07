@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { router } from "expo-router";
+import { API_URL } from "../config/api";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
@@ -16,7 +17,7 @@ export default function RegisterScreen() {
 
     try {
       const response = await fetch(
-        "http://172.20.97.59:8000/auth/register",
+        `${API_URL}/auth/register`,
         {
           method: "POST",
           headers: {

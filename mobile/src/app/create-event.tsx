@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { API_URL } from "../config/api";
 
 export default function CreateEventScreen() {
   const [title, setTitle] = useState("");
@@ -73,7 +74,7 @@ export default function CreateEventScreen() {
       }
 
       const response = await fetch(
-        "http://172.20.97.59:8000/events/",
+        `${API_URL}/events/`,
         {
           method: "POST",
           headers: {

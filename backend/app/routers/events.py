@@ -15,6 +15,7 @@ from app.schemas.event import (
 from app.services.event_service import (
     create_new_event,
     get_events,
+    get_my_events,
     get_event,
     update_existing_event,
     delete_existing_event,
@@ -69,6 +70,21 @@ def get_events_endpoint(
     db: Session = Depends(get_db)
 ):
     return get_events(db)
+
+
+# =========================
+# GET MY EVENTS
+# =========================
+
+@router.get("/my", response_model=list[EventResponse])
+def get_my_events_endpoint(
+    db: Session = Depends(get_db),
+    current_user = Depends(require_organizer_or_admin)
+):
+    return get_my_events(
+        db=db,
+        organizer_id=current_user.id
+    )
 
 
 # =========================
