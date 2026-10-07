@@ -16,7 +16,7 @@ export default function RegisterScreen() {
 
     try {
       const response = await fetch(
-        "http://172.19.51.45:8000/auth/register",
+        "http://172.20.97.59:8000/auth/register",
         {
           method: "POST",
           headers: {

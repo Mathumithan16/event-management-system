@@ -73,7 +73,7 @@ export default function CreateEventScreen() {
       }
 
       const response = await fetch(
-        "http://172.19.51.45:8000/events/",
+        "http://172.20.97.59:8000/events/",
         {
           method: "POST",
           headers: {

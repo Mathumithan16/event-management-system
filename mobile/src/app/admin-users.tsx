@@ -11,16 +11,20 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 
+const API_URL = "http://172.20.97.59:8000";
+
 type User = {
   id: number;
   name: string;
   email: string;
   role: string;
+  is_approved: boolean;
 };
 
 export default function AdminUsersScreen() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   const fetchUsers = async () => {
     try {
@@ -47,7 +51,7 @@ export default function AdminUsersScreen() {
       }
 
       const response = await fetch(
-        "http://172.19.51.45:8000/admin/users",
+        `${API_URL}/admin/users`,
         {
           method: "GET",
           headers: {
@@ -79,9 +83,85 @@ export default function AdminUsersScreen() {
     }
   };
 
-  useEffect(() => {
-    void fetchUsers();
-  }, []);
+
+
+  const approveUser = async (userId: number) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/admin/users/${userId}/approve`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert(
+          "Approval Failed",
+          data.detail || "Could not approve organizer."
+        );
+        return;
+      }
+
+      Alert.alert(
+        "Success",
+        "Organizer approved successfully."
+      );
+
+      // Update the user in the current list
+      setUsers((currentUsers) =>
+        currentUsers.map((user) =>
+          user.id === userId
+            ? {
+                ...user,
+                is_approved: true,
+              }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error("Approve user error:", error);
+
+      Alert.alert(
+        "Connection Error",
+        "Could not connect to the backend."
+      );
+    }
+  };
+
+
+
+  const confirmApproval = (user: User) => {
+    Alert.alert(
+      "Approve Organizer",
+      `Approve ${user.name}'s organizer account?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Approve",
+          onPress: () => {
+            void approveUser(user.id);
+          },
+        },
+      ]
+    );
+  };
+
+
 
   const changeRole = async (
     userId: number,
@@ -96,7 +176,7 @@ export default function AdminUsersScreen() {
       }
 
       const response = await fetch(
-        `http://172.19.51.45:8000/admin/users/${userId}/role`,
+        `${API_URL}/admin/users/${userId}/role`,
         {
           method: "PATCH",
           headers: {
@@ -130,6 +210,7 @@ export default function AdminUsersScreen() {
             ? {
                 ...user,
                 role: data.role,
+                is_approved: data.is_approved,
               }
             : user
         )
@@ -143,6 +224,7 @@ export default function AdminUsersScreen() {
       );
     }
   };
+
 
   const confirmRoleChange = (
     user: User,
@@ -165,6 +247,8 @@ export default function AdminUsersScreen() {
       ]
     );
   };
+
+  
 
   const deleteUser = async (userId: number) => {
     Alert.alert(
@@ -189,7 +273,7 @@ export default function AdminUsersScreen() {
               }
 
               const response = await fetch(
-                `http://172.19.51.45:8000/admin/users/${userId}`,
+                `${API_URL}/admin/users/${userId}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -236,14 +320,27 @@ export default function AdminUsersScreen() {
     );
   };
 
+  
+
+  useEffect(() => {
+    void fetchUsers();
+  }, []);
+
+
+
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
-        <Text>Loading users...</Text>
+
+        <Text style={styles.loadingText}>
+          Loading users...
+        </Text>
       </View>
     );
   }
+
+
 
   return (
     <View style={styles.container}>
@@ -270,60 +367,98 @@ export default function AdminUsersScreen() {
           keyExtractor={(item) =>
             item.id.toString()
           }
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.name}>
-                {item.name}
-              </Text>
+          renderItem={({ item }) => {
+            const isAdmin = item.role === "ADMIN";
+            const isOrganizer =
+              item.role === "ORGANIZER";
 
-              <Text style={styles.email}>
-                {item.email}
-              </Text>
+            const canApprove =
+              isOrganizer && !item.is_approved;
 
-              <Text style={styles.role}>
-                Role: {item.role}
-              </Text>
+            return (
+              <View style={styles.card}>
+                <Text style={styles.name}>
+                  {item.name}
+                </Text>
 
-              {item.role !== "ADMIN" && (
-                <>
+                <Text style={styles.email}>
+                  {item.email}
+                </Text>
+
+                <Text style={styles.role}>
+                  Role: {item.role}
+                </Text>
+
+                {/* Approval status */}
+                {!isAdmin && (
+                  <Text style={styles.status}>
+                    Status:{" "}
+                    {item.is_approved
+                      ? "Approved"
+                      : isOrganizer
+                      ? "Pending Approval"
+                      : "Not Required"}
+                  </Text>
+                )}
+
+                {/* Approve Organizer */}
+                {canApprove && (
                   <Pressable
-                    style={styles.roleButton}
+                    style={styles.approveButton}
                     onPress={() =>
-                      confirmRoleChange(
-                        item,
-                        item.role === "ORGANIZER"
-                          ? "VOLUNTEER"
-                          : "ORGANIZER"
-                      )
+                      confirmApproval(item)
                     }
                   >
                     <Text style={styles.buttonText}>
-                      Change to{" "}
-                      {item.role === "ORGANIZER"
-                        ? "Volunteer"
-                        : "Organizer"}
+                      Approve Organizer
                     </Text>
                   </Pressable>
+                )}
 
-                  <Pressable
-                    style={styles.deleteButton}
-                    onPress={() =>
-                      deleteUser(item.id)
-                    }
-                  >
-                    <Text style={styles.buttonText}>
-                      Delete User
-                    </Text>
-                  </Pressable>
-                </>
-              )}
-            </View>
-          )}
+                {/* Role change and delete */}
+                {!isAdmin && (
+                  <>
+                    <Pressable
+                      style={styles.roleButton}
+                      onPress={() =>
+                        confirmRoleChange(
+                          item,
+                          item.role === "ORGANIZER"
+                            ? "VOLUNTEER"
+                            : "ORGANIZER"
+                        )
+                      }
+                    >
+                      <Text style={styles.buttonText}>
+                        Change to{" "}
+                        {item.role === "ORGANIZER"
+                          ? "Volunteer"
+                          : "Organizer"}
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={styles.deleteButton}
+                      onPress={() =>
+                        deleteUser(item.id)
+                      }
+                    >
+                      <Text style={styles.buttonText}>
+                        Delete User
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
+              </View>
+            );
+          }}
         />
       )}
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -336,6 +471,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
   },
 
   title: {
@@ -378,7 +518,20 @@ const styles = StyleSheet.create({
 
   role: {
     fontWeight: "bold",
+    marginBottom: 8,
+  },
+
+  status: {
     marginBottom: 12,
+    fontWeight: "600",
+  },
+
+  approveButton: {
+    backgroundColor: "#008000",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
   },
 
   roleButton: {

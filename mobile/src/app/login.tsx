@@ -28,7 +28,7 @@ export default function LoginScreen() {
 
     try {
       const response = await fetch(
-        "http://172.19.51.45:8000/auth/login",
+        "http://172.20.97.59:8000/auth/login",
         {
           method: "POST",
           headers: {

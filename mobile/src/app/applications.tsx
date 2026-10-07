@@ -112,7 +112,7 @@ export default function ApplicationsScreen() {
               }
 
               const response = await fetch(
-                `http://172.19.51.45:8000/applications/${applicationId}`,
+                `http://172.20.97.59:8000/applications/${applicationId}`,
                 {
                   method: "DELETE",
                   headers: {

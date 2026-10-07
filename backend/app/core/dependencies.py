@@ -50,9 +50,18 @@ def get_current_user(
     return user
 
 
+def _ensure_user_is_approved(current_user):
+    if not getattr(current_user, "is_approved", True):
+        raise HTTPException(
+            status_code=403,
+            detail="Your account is pending admin approval"
+        )
+
+
 def require_organizer(
     current_user = Depends(get_current_user)
 ):
+    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() != UserRole.ORGANIZER.value:
         raise HTTPException(
             status_code=403,
@@ -65,6 +74,7 @@ def require_organizer(
 def require_volunteer(
     current_user = Depends(get_current_user)
 ):
+    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() != UserRole.VOLUNTEER.value:
         raise HTTPException(
             status_code=403,
@@ -77,6 +87,7 @@ def require_volunteer(
 def require_admin(
     current_user = Depends(get_current_user)
 ):
+    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=403,
@@ -89,6 +100,7 @@ def require_admin(
 def require_organizer_or_admin(
     current_user = Depends(get_current_user)
 ):
+    _ensure_user_is_approved(current_user)
     if current_user.role.strip().upper() not in {
         UserRole.ORGANIZER.value,
         UserRole.ADMIN.value,

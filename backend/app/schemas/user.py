@@ -38,6 +38,7 @@ class UserResponse(BaseModel):#going to recatnative
     name: str
     email: EmailStr
     role: str
+    is_approved: bool
 
 
 UserRoleUpdate = RegistrationRoleInput

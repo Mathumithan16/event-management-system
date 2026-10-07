@@ -45,6 +45,33 @@ def update_user_role(
         )
 
     user.role = role.value
+    user.is_approved = True
+
+    return update_user(
+        db,
+        user
+    )
+
+
+def approve_user_account(
+    db: Session,
+    user_id: int,
+):
+    user = get_user_by_id(db, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if user.role.strip().upper() == UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin accounts cannot be approved through this endpoint"
+        )
+
+    user.is_approved = True
 
     return update_user(
         db,

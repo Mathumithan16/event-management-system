@@ -16,6 +16,7 @@ from app.schemas.user import (
 )
 
 from app.services.admin_service import (
+    approve_user_account,
     delete_application_record,
     delete_user_account,
     list_applications,
@@ -59,6 +60,20 @@ def update_user_role_endpoint(
         db,
         user_id,
         role_data.role
+    )
+
+
+@router.patch(
+    "/users/{user_id}/approve",
+    response_model=UserResponse
+)
+def approve_user_endpoint(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    return approve_user_account(
+        db,
+        user_id,
     )
 
 

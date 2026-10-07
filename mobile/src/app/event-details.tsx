@@ -165,7 +165,7 @@ if (storedUserId) {
       }
 
       const response = await fetch(
-        "http://172.19.51.45:8000/applications/",
+        "http://172.20.97.59:8000/applications/",
         {
           method: "POST",
           headers: {
@@ -218,7 +218,7 @@ if (storedUserId) {
       }
 
       const response = await fetch(
-        `http://172.19.51.45:8000/events/${event.id}/status`,
+        `http://172.20.97.59:8000/events/${event.id}/status`,
         {
           method: "PATCH",
           headers: {

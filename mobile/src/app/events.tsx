@@ -32,7 +32,7 @@ export default function EventsScreen() {
       const token = await AsyncStorage.getItem("access_token");
 
       const response = await fetch(
-        "http://172.19.51.45:8000/events/",
+        "http://172.20.97.59:8000/events/",
         {
           method: "GET",
           headers: {
