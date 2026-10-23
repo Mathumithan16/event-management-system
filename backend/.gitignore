@@ -2,14 +2,39 @@
 # Python / FastAPI
 # =========================
 
+venv/
+.venv/
+.venv-*/
 backend/venv/
+build/
+dist/
+**/build/
+**/dist/
+.pytest_cache/
+__pycache__/
 backend/__pycache__/
 backend/**/__pycache__/
 *.py[cod]
+*.exe
+*.dll
 
-# Environment variables
+# Environment variables & secrets
 .env
-backend/.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Database backups & local files
+*.backup
+*.dump
+*.sql
+!migrations/*.sql
+*.sqlite
+*.sqlite3
+*.db
 
 # =========================
 # React Native
@@ -42,4 +67,4 @@ mobile/ios/build/
 # =========================
 
 .DS_Store
-Thumbs.db
+Thumbs.db
