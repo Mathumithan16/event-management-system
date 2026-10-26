@@ -1,64 +1,96 @@
+
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { router } from "expo-router";
-import { API_URL } from "../config/api";
+import {
+  API_URL,
+  getApiConnectionError,
+  readApiResponse,
+} from "../config/api";
+import GoogleSignInButton from "../auth/GoogleSignInButton";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"VOLUNTEER" | "ORGANIZER">("VOLUNTEER");
+  const [role, setRole] = useState<"VOLUNTEER" | "ORGANIZER">(
+    "VOLUNTEER"
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
-      Alert.alert("Error", "Please fill in all fields.");
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanName || !cleanEmail || !password) {
+      Alert.alert("Missing Details", "Please fill in all fields.");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `${API_URL}/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            role,
-          }),
-        }
-      );
+    if (isSubmitting) return;
 
-      const data = await response.json();
+    setIsSubmitting(true);
+
+    try {
+      console.log("Registering with API:", API_URL);
+
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: cleanName,
+          email: cleanEmail,
+          password,
+          role,
+        }),
+      });
+
+      const data = await readApiResponse(response);
+
+      console.log("Registration HTTP status:", response.status);
+      console.log("Registration response:", data);
 
       if (!response.ok) {
-        Alert.alert(
-          "Registration Failed",
-          data.detail || "Could not create account."
-        );
+        const detail =
+          data &&
+          typeof data === "object" &&
+          "detail" in data &&
+          typeof data.detail === "string"
+            ? data.detail
+            : `Registration failed (HTTP ${response.status}).`;
+
+        Alert.alert("Registration Failed", detail);
         return;
       }
 
-      Alert.alert(
-        "Success",
-        "Account created successfully!",
-        [
-          {
-            text: "OK",
-            onPress: () => router.replace("/login"),
-          },
-        ]
-      );
+      router.replace({
+        pathname: "/verify-email",
+        params: { email: cleanEmail },
+      });
     } catch (error) {
       console.error("Registration error:", error);
 
+      const reason =
+        getApiConnectionError(error) ??
+        (error instanceof Error ? error.message : String(error));
+
       Alert.alert(
         "Connection Error",
-        "Could not connect to the backend."
+        `Could not complete registration.\n\nAPI: ${API_URL}\nError: ${reason}\n\nCheck your backend terminal for details.`
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -71,6 +103,8 @@ export default function RegisterScreen() {
         placeholder="Name"
         value={name}
         onChangeText={setName}
+        editable={!isSubmitting}
+        autoCapitalize="words"
       />
 
       <TextInput
@@ -80,6 +114,8 @@ export default function RegisterScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        autoCorrect={false}
+        editable={!isSubmitting}
       />
 
       <TextInput
@@ -88,6 +124,7 @@ export default function RegisterScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!isSubmitting}
       />
 
       <Text style={styles.label}>Select Role</Text>
@@ -98,6 +135,7 @@ export default function RegisterScreen() {
             styles.roleButton,
             role === "VOLUNTEER" && styles.selectedRole,
           ]}
+          disabled={isSubmitting}
           onPress={() => setRole("VOLUNTEER")}
         >
           <Text
@@ -115,6 +153,7 @@ export default function RegisterScreen() {
             styles.roleButton,
             role === "ORGANIZER" && styles.selectedRole,
           ]}
+          disabled={isSubmitting}
           onPress={() => setRole("ORGANIZER")}
         >
           <Text
@@ -129,16 +168,28 @@ export default function RegisterScreen() {
       </View>
 
       <Pressable
-        style={styles.registerButton}
+        style={[
+          styles.registerButton,
+          isSubmitting && styles.disabledButton,
+        ]}
         onPress={handleRegister}
+        disabled={isSubmitting}
       >
-        <Text style={styles.registerButtonText}>
-          Create Account
-        </Text>
+        {isSubmitting ? (
+          <ActivityIndicator color="#ffffff" />
+        ) : (
+          <Text style={styles.registerButtonText}>
+            Create Account
+          </Text>
+        )}
       </Pressable>
+
+      <Text style={styles.separator}>or sign up with</Text>
+      <GoogleSignInButton role={role} disabled={isSubmitting} />
 
       <Pressable
         style={styles.loginButton}
+        disabled={isSubmitting}
         onPress={() => router.replace("/login")}
       >
         <Text style={styles.loginButtonText}>
@@ -156,14 +207,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#ffffff",
   },
-
   title: {
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 30,
     textAlign: "center",
   },
-
   input: {
     borderWidth: 1,
     borderColor: "#cccccc",
@@ -173,19 +222,16 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
-
   label: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 10,
   },
-
   roleContainer: {
     flexDirection: "row",
     gap: 10,
     marginBottom: 20,
   },
-
   roleButton: {
     flex: 1,
     borderWidth: 1,
@@ -194,41 +240,44 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-
   selectedRole: {
     backgroundColor: "#000000",
   },
-
   roleText: {
     fontSize: 15,
     fontWeight: "600",
   },
-
   selectedRoleText: {
     color: "#ffffff",
   },
-
   registerButton: {
     backgroundColor: "#000000",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 15,
+    minHeight: 50,
+    justifyContent: "center",
   },
-
+  disabledButton: {
+    opacity: 0.6,
+  },
   registerButtonText: {
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
   },
-
   loginButton: {
     alignItems: "center",
     paddingVertical: 10,
   },
-
   loginButtonText: {
     fontSize: 15,
     fontWeight: "600",
+  },
+  separator: {
+    textAlign: "center",
+    color: "#666666",
+    marginVertical: 2,
   },
 });

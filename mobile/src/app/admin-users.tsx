@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -142,6 +143,13 @@ export default function AdminUsersScreen() {
 
 
   const confirmApproval = (user: User) => {
+    if (Platform.OS === "web") {
+      if (window.confirm(`Approve ${user.name}'s organizer account?`)) {
+        void approveUser(user.id);
+      }
+      return;
+    }
+
     Alert.alert(
       "Approve Organizer",
       `Approve ${user.name}'s organizer account?`,

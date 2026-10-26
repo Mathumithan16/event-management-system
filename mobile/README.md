@@ -10,11 +10,51 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Start the backend from the repository's `backend` directory. See the
+   [backend setup instructions](../backend/README.md).
+
+3. If testing on a physical device, create a `.env.local` file in this
+   directory and set the backend computer's LAN address:
+
+   ```text
+   EXPO_PUBLIC_API_URL=http://192.168.1.10:8000
+   ```
+
+   Replace `192.168.1.10` with the computer's IPv4 address from `ipconfig`.
+   Keep the phone and computer on the same Wi-Fi network. Start the backend
+   with `backend/run.bat`; it must listen on `0.0.0.0:8000` and be allowed
+   through Windows Firewall. On the phone, open
+   `http://192.168.1.10:8000/` in a browser to confirm it can reach the API.
+   If an older packaged `EventManagementAPI.exe` is already running, close it
+   before starting `run.bat`; the packaged version may listen only on
+   `127.0.0.1`, which phones cannot access. Restart Expo after changing
+   `.env.local`.
+   For web on the same computer, the default API address is
+   `http://127.0.0.1:8000`.
+
+4. To enable Google sign-in, create OAuth client IDs for the app's Android,
+   iOS, and web platforms in Google Cloud Console. Set the client IDs used by
+   your targets in `mobile/.env.local`:
+
+   ```text
+   EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=your-android-client-id
+   EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=your-ios-client-id
+   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your-web-client-id
+   ```
+
+   Also allow those same IDs in the backend `GOOGLE_CLIENT_IDS` setting as
+   described in the [backend setup instructions](../backend/README.md).
+   Configure the OAuth clients with the Android package/SHA-1, iOS bundle ID,
+   and web redirect settings for the app you build. These client IDs are public
+   identifiers, not client secrets. Restart Expo after changing the file.
+
+5. Start the app
 
    ```bash
    npx expo start
    ```
+
+   Reload the app after changing `.env.local`.
 
 In the output, you'll find options to open the app in a
 

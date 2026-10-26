@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import { router } from "expo-router";
+import { Link } from "expo-router";
 
 export default function HomeScreen() {
   return (
@@ -10,22 +10,17 @@ export default function HomeScreen() {
         Manage Events and Volunteer Applications
       </Text>
 
-      <Pressable
-        style={styles.button}
-        onPress={() => router.push("/login")}
-      >
-        <Text style={styles.buttonText}>Login</Text>
-      </Pressable>
+      <Link href="/login" asChild>
+        <Pressable style={styles.button} accessibilityRole="button">
+          <Text style={styles.buttonText}>Login</Text>
+        </Pressable>
+      </Link>
 
-
-      <Pressable
-        style={styles.secondaryButton}
-        onPress={() => router.push("/register")}
-      >
-        <Text style={styles.secondaryButtonText}>
-          Create Account
-        </Text>
-      </Pressable>
+      <Link href="/register" asChild>
+        <Pressable style={styles.secondaryButton} accessibilityRole="button">
+          <Text style={styles.secondaryButtonText}>Create Account</Text>
+        </Pressable>
+      </Link>
 
     </View>
   );

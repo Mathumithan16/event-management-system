@@ -31,9 +31,7 @@ router = APIRouter(
 )
 
 
-# =========================
-# CREATE EVENT
-# =========================
+
 
 @router.post("/", response_model=EventResponse)
 def create_new_event_endpoint(
@@ -61,9 +59,7 @@ def create_new_event_endpoint(
     )
 
 
-# =========================
-# GET ALL EVENTS
-# =========================
+
 
 @router.get("/", response_model=list[EventResponse])
 def get_events_endpoint(
@@ -72,9 +68,6 @@ def get_events_endpoint(
     return get_events(db)
 
 
-# =========================
-# GET MY EVENTS
-# =========================
 
 @router.get("/my", response_model=list[EventResponse])
 def get_my_events_endpoint(
@@ -87,9 +80,7 @@ def get_my_events_endpoint(
     )
 
 
-# =========================
-# GET SINGLE EVENT
-# =========================
+
 
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event_by_id_endpoint(
@@ -102,9 +93,6 @@ def get_event_by_id_endpoint(
     )
 
 
-# =========================
-# UPDATE EVENT
-# =========================
 
 @router.put("/{event_id}", response_model=EventResponse)
 def update_event_endpoint(
@@ -122,9 +110,7 @@ def update_event_endpoint(
     )
 
 
-# =========================
-# DELETE EVENT
-# =========================
+
 
 @router.delete("/{event_id}")
 def delete_event_endpoint(
@@ -139,10 +125,6 @@ def delete_event_endpoint(
         is_admin=current_user.role.strip().upper() == UserRole.ADMIN.value
     )
 
-
-# =========================
-# UPDATE EVENT STATUS
-# =========================
 
 @router.patch("/{event_id}/status", response_model=EventResponse)
 def update_event_status(

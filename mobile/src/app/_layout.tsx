@@ -23,6 +23,11 @@ export default function RootLayout() {
       />
 
       <Stack.Screen
+        name="verify-email"
+        options={{ title: "Verify Email" }}
+      />
+
+      <Stack.Screen
         name="events"
         options={{
           title: "Events",

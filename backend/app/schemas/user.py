@@ -31,6 +31,22 @@ class UserCreate(RegistrationRoleInput): #This represents data coming from React
     password: str
 
 
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    otp: str
+
+    @field_validator("otp")
+    @classmethod
+    def validate_otp(cls, value: str) -> str:
+        if len(value) != 6 or not value.isdigit():
+            raise ValueError("OTP must be a 6-digit code") #create 6 digit otp#
+        return value
+
+
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
 class UserResponse(BaseModel):#going to recatnative
     model_config = ConfigDict(from_attributes=True)
 
@@ -52,3 +68,8 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str
+
+
+class GoogleLoginRequest(BaseModel):
+    credential: str
+    role: RegistrationRole = RegistrationRole.VOLUNTEER

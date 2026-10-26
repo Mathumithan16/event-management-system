@@ -1,7 +1,13 @@
+import logging
 from importlib import import_module
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 
 from database import Base, engine
 
@@ -33,6 +39,7 @@ app.add_middleware(
         "http://localhost:19006",
         "http://127.0.0.1:19006",
     ],
+    allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
